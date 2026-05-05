@@ -18,6 +18,15 @@ exports.loginStudent = async (req, res) => {
 
     const user = result.rows[0];
 
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    if (!user.password_hash) {
+      console.error("[auth] user has no password_hash for email:", email);
+      return res.status(500).json({ message: "Server error" });
+    }
+
     // Compare hashed password
     const isMatch = await bcrypt.compare(password, user.password_hash);
 

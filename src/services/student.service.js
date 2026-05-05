@@ -9,13 +9,12 @@ exports.registerStudent = async (data) => {
       whatsapp,
       email,
       city,
-      password_hash,
       twelfth_status,
       stream,
       career_interest,
       matters_most
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
     RETURNING *;
   `;
 
@@ -26,12 +25,19 @@ exports.registerStudent = async (data) => {
     data.whatsapp,
     data.email,
     data.city,
-    data.password_hash,
     data.twelfth_status,
     data.stream,
     data.career_interest,
     data.matters_most,
   ];
+
+  // Defensive check: ensure values length matches placeholders
+  if (values.length !== 10) {
+    console.error("[registerStudent] values length mismatch", values);
+    throw new Error("Server error: registration values mismatch");
+  }
+
+  console.log("[registerStudent] inserting values:", values.map((v) => (v && v.toString ? v.toString().slice(0, 200) : v)));
 
   const result = await pool.query(query, values);
   return result.rows[0];

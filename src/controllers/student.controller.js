@@ -1,12 +1,41 @@
 const studentService = require("../services/student.service");
-const { hashPassword } = require("../utils/hash");
 
 exports.register = async (req, res, next) => {
   try {
-    const body = req.body;
+    const body = req.body || {};
 
-    // hash password
-    const password_hash = await hashPassword(body.password);
+    // Basic server-side validation to avoid downstream errors
+    const required = [
+      "studentName",
+      "parentName",
+      "mobile",
+      "whatsapp",
+      "email",
+      "city",
+      "twelfthStatus",
+      "stream",
+      "careerInterest",
+      "mattersMost",
+    ];
+
+    for (const key of required) {
+      if (!body[key] || String(body[key]).trim() === "") {
+        return res.status(400).json({ success: false, message: `${key} is required` });
+      }
+    }
+
+    console.log("[register] incoming body:", {
+      studentName: body.studentName,
+      parentName: body.parentName,
+      mobile: body.mobile,
+      whatsapp: body.whatsapp,
+      email: body.email,
+      city: body.city,
+      twelfthStatus: body.twelfthStatus,
+      stream: body.stream,
+      careerInterest: body.careerInterest,
+      mattersMost: body.mattersMost,
+    });
 
     const student = await studentService.registerStudent({
       student_name: body.studentName,
@@ -15,7 +44,6 @@ exports.register = async (req, res, next) => {
       whatsapp: body.whatsapp,
       email: body.email,
       city: body.city,
-      password_hash,
       twelfth_status: body.twelfthStatus,
       stream: body.stream,
       career_interest: body.careerInterest,
